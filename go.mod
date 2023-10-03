@@ -1,3 +1,3 @@
-module github.com/iancoleman/orderedmap
+module github.com/jimsnab/orderedmap
 
 go 1.21
