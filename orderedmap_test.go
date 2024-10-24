@@ -89,6 +89,42 @@ func TestOrderedMap(t *testing.T) {
 	}
 }
 
+func TestSortedKeys(t *testing.T) {
+	o := New()
+	// some data
+	o.Set("cat", 1)
+	o.Set("fox", 2)
+	o.Set("dog", 3)
+
+	if fmt.Sprintf("%v", o.SortedKeys()) != "[cat dog fox]" {
+		t.Error("not the sorted order")
+	}
+	if fmt.Sprintf("%v", o.Keys()) != "[cat fox dog]" {
+		t.Error("not the original order")
+	}
+
+	o.Set("dog", 10)
+	if fmt.Sprintf("%v", o.SortedKeys()) != "[cat dog fox]" {
+		t.Error("not the sorted order")
+	}
+
+	o.Set("dig", 10)
+	if fmt.Sprintf("%v", o.SortedKeys()) != "[cat dig dog fox]" {
+		t.Error("not the sorted order")
+	}
+	if fmt.Sprintf("%v", o.Keys()) != "[cat fox dog dig]" {
+		t.Error("not the original order")
+	}
+
+	o.Delete("dog")
+	if fmt.Sprintf("%v", o.SortedKeys()) != "[cat dig fox]" {
+		t.Error("not the sorted order")
+	}
+	if fmt.Sprintf("%v", o.Keys()) != "[cat fox dig]" {
+		t.Error("not the original order")
+	}
+}
+
 func TestBlankMarshalJSON(t *testing.T) {
 	o := New()
 	// blank map

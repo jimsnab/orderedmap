@@ -30,6 +30,7 @@ func (a ByPair) Less(i, j int) bool { return a.LessFunc(a.Pairs[i], a.Pairs[j]) 
 
 type OrderedMap struct {
 	keys       []string
+	sortedKeys []string
 	values     map[string]any
 	escapeHTML bool
 }
@@ -78,10 +79,24 @@ func (o *OrderedMap) Delete(key string) {
 	}
 	// remove from values
 	delete(o.values, key)
+
+	// invalidate sorting
+	o.sortedKeys = nil
 }
 
 func (o *OrderedMap) Keys() []string {
 	return o.keys
+}
+
+// Get the sorted keys without altering the original order
+func (o *OrderedMap) SortedKeys() []string {
+	if len(o.sortedKeys) != len(o.keys) {
+		sorted := make([]string, 0, len(o.keys))
+		sorted = append(sorted, o.keys...)
+		sort.Strings(sorted)
+		o.sortedKeys = sorted
+	}
+	return o.sortedKeys
 }
 
 func (o *OrderedMap) Values() map[string]any {
@@ -91,6 +106,7 @@ func (o *OrderedMap) Values() map[string]any {
 // SortKeys Sort the map keys using your sort func
 func (o *OrderedMap) SortKeys(sortFunc func(keys []string)) {
 	sortFunc(o.keys)
+	o.sortedKeys = o.keys
 }
 
 // Sort Sort the map using your sort func
@@ -105,9 +121,11 @@ func (o *OrderedMap) Sort(lessFunc func(a *Pair, b *Pair) bool) {
 	for i, pair := range pairs {
 		o.keys[i] = pair.key
 	}
+	o.sortedKeys = o.keys
 }
 
 func (o *OrderedMap) UnmarshalJSON(b []byte) error {
+	o.sortedKeys = nil
 	if o.values == nil {
 		o.values = map[string]any{}
 	}
